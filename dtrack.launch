@@ -1,0 +1,15 @@
+<launch>
+  <node pkg="my_kinnect" type="dtrack.py" name="dtrack-hello" output="screen" respawn="True">
+    <param name="task" value="hello" />
+  </node>
+  <node pkg="my_kinnect" type="dtrack.py" name="dtrack-sensei" output="screen" respawn="True">
+    <param name="task" value="sensei" />
+  </node>
+<node pkg="my_kinnect" type="dtrack.py" name="dtrack-goto" output="screen" respawn="True">
+    <param name="task" value="goto" />
+  </node>
+<node pkg="my_kinnect" type="dtrack.py" name="dtrack-tome" output="screen" respawn="True">
+    <param name="task" value="tome" />
+  </node>
+</launch>
+
