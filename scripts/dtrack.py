@@ -44,7 +44,7 @@ class Tracker():
 		except:
 			pass
 
-	ip = rospy.get_param('~ip', '10.104.16.141')
+	ip = rospy.get_param('~ip', '10.104.16.50')
 	port = int(rospy.get_param('~port', '9559'))
 	self.al = ALProxy("ALAutonomousLife", ip, port)
 	self.postureProxy = ALProxy("ALRobotPosture", ip, port)
@@ -54,7 +54,7 @@ class Tracker():
 	self.postureProxy.goToPosture("StandInit", 0.5)
 	for part in ["Head", "LArm", "RArm"]:
 		self.motionProxy.setStiffnesses(part, 1.0)
-	self.init_kinnect_pose()
+	#self.init_kinnect_pose()
 
     def init_kinnect_pose(self):
 	self.motionProxy.setAngles(['LShoulderRoll', 'RShoulderRoll'], self.to_rad([57.9, -57.9]), 1.0);
@@ -79,18 +79,18 @@ class Tracker():
     def to_rad(self, angles):
 	return map(lambda x: float(x)*math.pi/180.0, angles)
 
-    def nao_hello(self)
+    def nao_hello(self):
 	self.postureProxy.goToPosture("Standing",1)
-	self.motionProxy.setAngles('RShoulderPitch',self.to_rad(-60),1.0)
-	self.motionProxy.setAngles('RShoulderRoll',self.to_rad(-1.6),1.0)
-	self.motionProxy.setAngles('RElbowRoll',self.to_rad(37.5),1.0)
-	self.motionProxy.setAngles('RElbowYaw',self.to_rand(79.1),1.0)
-	self.motionProxy.setAngles('RWirstYaw',self.to_rand(57),1.0)
+	self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-60.0])[0],1.0)
+	self.motionProxy.setAngles('RShoulderRoll',self.to_rad([-1.6])[0],1.0)
+	self.motionProxy.setAngles('RElbowRoll',self.to_rad([37.5])[0],1.0)
+	self.motionProxy.setAngles('RElbowYaw',self.to_rad([79.1])[0],1.0)
+	self.motionProxy.setAngles('RWristYaw',self.to_rad([57.0])[0],1.0)
 	self.motionProxy.openHand('RHand')
 	self.tts.say("Hello my friend")
 	for i in range(1,2):
-		self.motionProxy.setAngles('RShoulderPitch',self.to_rad(-25),2.0)
-		self.motionProxy.setAngles('RShoulderPitch',self.to_rad(-60),1.0)
+		self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-25.0])[0],1.0)
+		self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-60.0])[0],1.0)
     
 
 
