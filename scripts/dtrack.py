@@ -2,6 +2,7 @@
 import rospy
 import tf
 import math
+import almath
 from naoqi import ALProxy
 from std_msgs.msg import Header
 from geometry_msgs.msg import Vector3
@@ -26,6 +27,19 @@ class Tracker():
 	#	self.motionProxy.setStiffnesses(part, 1.0)
 	#	self.init_kinnect_pose()
 	self.tf = tf.TransformListener()
+
+
+	ip = rospy.get_param('~ip', '10.104.16.50')
+	port = int(rospy.get_param('~port', '9559'))
+	self.al = ALProxy("ALAutonomousLife", ip, port)
+	self.postureProxy = ALProxy("ALRobotPosture", ip, port)
+	self.tts = ALProxy("ALTextToSpeech", ip, port)
+	self.motionProxy = ALProxy("ALMotion", ip, port)
+	self.al.setState("disabled")
+	self.postureProxy.goToPosture("StandInit", 0.5)
+	for part in ["Head", "LArm", "RArm"]:
+		self.motionProxy.setStiffnesses(part, 1.0)
+
 	rospy.loginfo("Start tracking for 3s...")
         rospy.sleep(3.0)
 	rospy.loginfo("Tracking started!")
@@ -44,16 +58,7 @@ class Tracker():
 		except:
 			pass
 
-	ip = rospy.get_param('~ip', '10.104.16.50')
-	port = int(rospy.get_param('~port', '9559'))
-	self.al = ALProxy("ALAutonomousLife", ip, port)
-	self.postureProxy = ALProxy("ALRobotPosture", ip, port)
-	self.tts = ALProxy("ALTextToSpeech", ip, port)
-	self.motionProxy = ALProxy("ALMotion", ip, port)
-	self.al.setState("disabled")
-	self.postureProxy.goToPosture("StandInit", 0.5)
-	for part in ["Head", "LArm", "RArm"]:
-		self.motionProxy.setStiffnesses(part, 1.0)
+	
 	#self.init_kinnect_pose()
 
     def init_kinnect_pose(self):
@@ -81,19 +86,41 @@ class Tracker():
 
     def nao_hello(self):
 	self.postureProxy.goToPosture("Standing",1)
-	self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-60.0])[0],1.0)
-	self.motionProxy.setAngles('RShoulderRoll',self.to_rad([-1.6])[0],1.0)
-	self.motionProxy.setAngles('RElbowRoll',self.to_rad([37.5])[0],1.0)
-	self.motionProxy.setAngles('RElbowYaw',self.to_rad([79.1])[0],1.0)
-	self.motionProxy.setAngles('RWristYaw',self.to_rad([57.0])[0],1.0)
+	self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-97.3])[0],1.0)
+	self.motionProxy.setAngles('RShoulderRoll',self.to_rad([-39.2])[0],1.0)
+	self.motionProxy.setAngles('RElbowRoll',self.to_rad([50.8])[0],1.0)
+	self.motionProxy.setAngles('RElbowYaw',self.to_rad([8.5])[0],1.0)
+	self.motionProxy.setAngles('RWristYaw',self.to_rad([-13.4])[0],1.0)
 	self.motionProxy.openHand('RHand')
 	self.tts.say("Hello my friend")
-	for i in range(1,2):
-		self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-25.0])[0],1.0)
-		self.motionProxy.setAngles('RShoulderPitch',self.to_rad([-60.0])[0],1.0)
-    
+	for i in range(0,2):
+		#self.motionProxy.setAngles('RShoulderRoll',self.to_rad([-12.2])[0],1.0)
+		#self.motionProxy.setAngles('RShoulderRoll',self.to_rad([-39.2])[0],1.0)
+		#self.motionProxy.setAngles('RShoulderRoll',self.to_rad([-60.4])[0],1.0)
+		self.motionProxy.angleInterpolation("RShoulderRoll",-12.2*almath.TO_RAD,0.3,True)
+		self.motionProxy.angleInterpolation("RShoulderRoll",39.2*almath.TO_RAD,0.3,True)
+		self.motionProxy.angleInterpolation("RShoulderRoll",-50.4*almath.TO_RAD,0.3,True)
+	self.postureProxy.goToPosture("Standing",1)
 
 
+    def nao_sensei(self):
+	self.postureProxy.goToPosture("Standing",1)
+	self.motionProxy.setAngles(['RShoulderPitch','LShoulderPitch'],[52.7*almath.TO_RAD,49.1*almath.TO_RAD],1.0)
+	self.motionProxy.setAngles(['RShoulderRoll','LShoulderRoll'],[13.3*almath.TO_RAD,-8.9*almath.TO_RAD],1.0)
+	self.motionProxy.setAngles(['RElbowRoll','LElbowRoll'],[88.3*almath.TO_RAD,-87.6*almath.TO_RAD],1.0)
+	self.motionProxy.setAngles(['RElbowYaw','LElbowYaw'],[68.1*almath.TO_RAD,-60.9*almath.TO_RAD],1.0)
+	self.motionProxy.setAngles(['RWristYaw','LWristYaw'],[-10.3*almath.TO_RAD,11.0*almath.TO_RAD],1.0)
+	self.motionProxy.setAngles(['RHand','LHand'],[-10.3*almath.TO_RAD,11.0*almath.TO_RAD],1.0)
+	self.motionProxy.openHand('RHand')
+	self.motionProxy.openHand('LHand')
+	#sequence head
+	self.tts.say("Domo Arigato")
+	#self.motionProxy.angleInterpolation("HeadPitch",0.0,1.0,True)
+	self.motionProxy.angleInterpolation("HeadPitch",26.5*almath.TO_RAD,1.0,True)
+	self.motionProxy.angleInterpolation("HeadPitch",0.0*almath.TO_RAD,1.0,True)
+	
+	self.postureProxy.goToPosture("Standing",1)
+	
     def hello_process(self):
 	self.count = 0
 	self.side = 0		#left 0 right 1
@@ -172,6 +199,7 @@ class Tracker():
 					continue
 				if (count == 4 and starthead-currhead < 0.1):
 					print("uklon!")
+					self.nao_sensei()
 					ukl = False
 		self.r.sleep()
 		#print("out!")
